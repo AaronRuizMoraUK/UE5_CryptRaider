@@ -6,6 +6,9 @@
 !*.uproject
 !README.md
 
+# Include configuration files.
+!Config/
+
 # Include Source code.
 !Source/
 
