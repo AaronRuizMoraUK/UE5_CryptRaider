@@ -20,6 +20,8 @@ public:
 	// Sets default values for this component's properties
 	UGrabber();
 
+	inline static const FName GrabbedTag = FName("Grabbed");
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

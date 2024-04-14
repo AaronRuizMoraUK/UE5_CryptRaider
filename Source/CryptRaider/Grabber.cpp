@@ -37,9 +37,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	if (auto GrabbedComponent = GetGrabbedComponent())
 	{
-		if (FVector::Distance(GrabbedComponent->GetComponentLocation(), GetComponentLocation()) > DropDistance)
+		// Check if the grabbed component must be released, that's when:
+		// - The component doesn't have the tag "Grabbed" anymore
+		// - The component gets too far away.
+		if (GrabbedComponent->GetOwner()->Tags.Find(GrabbedTag) == INDEX_NONE ||
+			FVector::Distance(GrabbedComponent->GetComponentLocation(), GetComponentLocation()) > DropDistance)
 		{
-			// Release the object if it gets too far away
 			Release();
 		}
 		else
@@ -93,6 +96,9 @@ void UGrabber::Grab()
 		// Wake hit component's physics so it's ready to be grabbed.
 		HitComponent->WakeAllRigidBodies();
 
+		// Add the tag "Grabbed" to the Hit Actor so it knows it's been grabbed.
+		HitComponent->GetOwner()->Tags.AddUnique(GrabbedTag);
+
 		GetPhysicsHandle()->GrabComponentAtLocationWithRotation(
 			HitComponent,
 			NAME_None, 
@@ -127,6 +133,9 @@ void UGrabber::Release()
 
 		// Wake up the grabbed component so it's physics are active when it's released
 		GrabbedComponent->WakeAllRigidBodies();
+
+		// Remove the tag "Grabbed" (if still present)
+		GrabbedComponent->GetOwner()->Tags.Remove(GrabbedTag);
 
 		GetPhysicsHandle()->ReleaseComponent();
 	}
