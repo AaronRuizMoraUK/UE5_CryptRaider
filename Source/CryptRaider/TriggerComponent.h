@@ -34,6 +34,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	FName AcceptableActorTag;
 
+	UPROPERTY(EditAnywhere)
+	bool TriggersOnce = true;
+
 	UMover* Mover = nullptr;
 	
 	AActor* GetAcceptableActor() const;

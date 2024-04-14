@@ -36,22 +36,25 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// While there is an acceptable actor in the trigger, move the mover.
 	if (AcceptableActor)
 	{
-		const FName Accepted("Accepted");
-		if (!AcceptableActor->ActorHasTag(Accepted))
+		if (TriggersOnce)
 		{
-			// Disable acceptable actor's physics and grabber collisions.
-			if (auto PrimitiveComponent = Cast<UPrimitiveComponent>(AcceptableActor->GetRootComponent()))
+			const FName Accepted("Accepted");
+			if (!AcceptableActor->ActorHasTag(Accepted))
 			{
-				PrimitiveComponent->SetSimulatePhysics(false);
-				PrimitiveComponent->SetCollisionResponseToChannel(UGrabber::CollisionChannel, ECollisionResponse::ECR_Ignore);
+				// Disable acceptable actor's physics and grabber collisions.
+				if (auto PrimitiveComponent = Cast<UPrimitiveComponent>(AcceptableActor->GetRootComponent()))
+				{
+					PrimitiveComponent->SetSimulatePhysics(false);
+					PrimitiveComponent->SetCollisionResponseToChannel(UGrabber::CollisionChannel, ECollisionResponse::ECR_Ignore);
+				}
+
+				// Attach the acceptable actor to the trigger's root component.
+				// This way the actor moves with the trigger and won't release the trigger.
+				AcceptableActor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+
+				// Use "Accepted" tag to mark it as used and avoid reattaching every frame.
+				AcceptableActor->Tags.Add(Accepted);
 			}
-
-			// Attach the acceptable actor to the trigger's root component.
-			// This way the actor moves with the trigger and won't release the trigger.
-			AcceptableActor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
-
-			// Use "Accepted" tag to mark it as used and avoid reattaching every frame.
-			AcceptableActor->Tags.Add(Accepted);
 		}
 
 		// Start moving the mover.
