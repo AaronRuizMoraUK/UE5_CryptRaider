@@ -21,6 +21,7 @@ public:
 	UGrabber();
 
 	inline static const FName GrabbedTag = FName("Grabbed");
+	inline static const ECollisionChannel CollisionChannel = ECC_GameTraceChannel2;
 
 protected:
 	// Called when the game starts

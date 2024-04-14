@@ -181,7 +181,7 @@ std::optional<FHitResult> UGrabber::CheckHit() const
 		StartLocation,
 		EndLocation,
 		FQuat::Identity,
-		ECC_GameTraceChannel2,
+		CollisionChannel,
 		FCollisionShape::MakeSphere(GrabSphereRadius)
 	);
 

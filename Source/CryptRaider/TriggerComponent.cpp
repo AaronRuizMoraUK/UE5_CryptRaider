@@ -2,6 +2,7 @@
 
 
 #include "TriggerComponent.h"
+#include "Grabber.h"
 
 // Sets default values for this component's properties
 UTriggerComponent::UTriggerComponent()
@@ -24,6 +25,7 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Do nothing if the mover hasnt' been setup
 	if (!Mover)
 	{
 		return;
@@ -31,7 +33,35 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	AActor* AcceptableActor = GetAcceptableActor();
 
-	Mover->SetShouldMove(AcceptableActor != nullptr);
+	// While there is an acceptable actor in the trigger, move the mover.
+	if (AcceptableActor)
+	{
+		const FName Accepted("Accepted");
+		if (!AcceptableActor->ActorHasTag(Accepted))
+		{
+			// Disable acceptable actor's physics and grabber collisions.
+			if (auto PrimitiveComponent = Cast<UPrimitiveComponent>(AcceptableActor->GetRootComponent()))
+			{
+				PrimitiveComponent->SetSimulatePhysics(false);
+				PrimitiveComponent->SetCollisionResponseToChannel(UGrabber::CollisionChannel, ECollisionResponse::ECR_Ignore);
+			}
+
+			// Attach the acceptable actor to the trigger's root component.
+			// This way the actor moves with the trigger and won't release the trigger.
+			AcceptableActor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+
+			// Use "Accepted" tag to mark it as used and avoid reattaching every frame.
+			AcceptableActor->Tags.Add(Accepted);
+		}
+
+		// Start moving the mover.
+		Mover->SetShouldMove(true);
+	}
+	else
+	{
+		// Stop moving the mover.
+		Mover->SetShouldMove(false);
+	}
 }
 
 void UTriggerComponent::SetMover(UMover* NewMover)
@@ -46,7 +76,8 @@ AActor* UTriggerComponent::GetAcceptableActor() const
 
 	for (AActor* Actor : Actors)
 	{
-		if (Actor->ActorHasTag(AcceptableActorTag))
+		if (Actor->ActorHasTag(AcceptableActorTag) &&
+			!Actor->ActorHasTag(UGrabber::GrabbedTag))
 		{
 			return Actor;
 		}
