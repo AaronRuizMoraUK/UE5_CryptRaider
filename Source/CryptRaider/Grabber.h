@@ -36,6 +36,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsGrabbing() const;
 
+	UFUNCTION(BlueprintCallable)
+	void EnableDebug(bool Enable);
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

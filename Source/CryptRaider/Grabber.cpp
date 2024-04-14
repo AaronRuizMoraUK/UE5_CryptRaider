@@ -155,6 +155,12 @@ bool UGrabber::IsGrabbing() const
 }
 
 
+void UGrabber::EnableDebug(bool Enable)
+{
+	Debug = Enable;
+}
+
+
 UPhysicsHandleComponent* UGrabber::GetPhysicsHandle() const
 {
 	return GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
