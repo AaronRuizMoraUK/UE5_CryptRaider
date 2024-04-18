@@ -5,6 +5,7 @@
 !.gitignore
 !*.uproject
 !*.jpg
+!*.gif
 !README.md
 
 # Include configuration files.
